@@ -1,0 +1,5 @@
+#!/bin/bash
+
+urxvtc -e ./build/server10/server10 8000 &
+urxvtc -e ./build/client10/client10 8000
+

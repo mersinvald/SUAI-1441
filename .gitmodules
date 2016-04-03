@@ -1,0 +1,16 @@
+[submodule "c/C1/practice/labyrinth"]
+  path = c/C1/practice/labyrinth
+  url = https://github.com/mersinvald/maze-generator.git
+  ignore = all
+
+[submodule "c/C1/practice/labyrinth_offscreen"]
+  path = c/C1/practice/labyrinth_offscreen
+  url = https://github.com/mersinvald/maze-generator_offscreen
+  ignore = all
+
+[submodule "c/C2/OP/Kursach/var28_chat"]
+  path = c/C2/OP/Kursach/var28_chat
+  url = https://github.com/mersinvald/NChat
+  ignore = all
+
+

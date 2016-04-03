@@ -1,0 +1,16 @@
+*.[oa]
+*.so
+*.~
+*~
+*~*
+*.autosave
+*.autosave.*
+*.pro.user
+*.pro.user.*
+*.tar*
+*.zip
+*.png
+*.jpg
+.idea/
+build/
+build*/
