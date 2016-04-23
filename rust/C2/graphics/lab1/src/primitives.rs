@@ -1,5 +1,6 @@
-use sdl2::pixels::Color;
 use sdl2;
+use sdl2::pixels::Color;
+use sdl2::render::Renderer;
 use matrix::*;
 
 pub struct Point2D {
@@ -20,8 +21,7 @@ pub trait Primitive2D {
     fn to_matrix(&self) -> Matrix;
     fn from_matrix(&mut self, m: &Matrix);
 
-    fn draw<F: FnMut(i32, i32, Color)>
-        (&self, set_pixel: F);
+    fn draw(&self, renderer: &Renderer);
 
     fn translate(&mut self, dx: f32, dy: f32) {
         let obj = self.to_matrix();

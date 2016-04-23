@@ -1,5 +1,6 @@
-use sdl2;
 use sdl2::pixels::Color;
+use sdl2::render::Renderer;
+use sdl2_gfx::primitives::DrawRenderer;
 use primitives::*;
 use matrix::*;
 
@@ -26,14 +27,13 @@ impl Line {
         }
     }
 
-    fn draw_bresenham_line<F>(&self, mut set_pixel: F)
-        where F: FnMut(i32, i32, Color) {
+    fn draw_bresenham_line(&self, renderer: &Renderer) {
         use std::mem::swap;
 
-        let mut x1 = self.p1.x as i32;
-        let mut y1 = self.p1.y as i32;
-        let mut x2 = self.p2.x as i32;
-        let mut y2 = self.p2.y as i32;
+        let mut x1 = self.p1.x as i16;
+        let mut y1 = self.p1.y as i16;
+        let mut x2 = self.p2.x as i16;
+        let mut y2 = self.p2.y as i16;
 
         let steep = (y2 - y1).abs() > (x2 - x1).abs();
         if steep {
@@ -55,11 +55,11 @@ impl Line {
         let ystep = if y1 < y2 { 1 } else { -1 };
 
         for x in x1..x2 {
-            set_pixel(
+            renderer.pixel(
                 if steep { y } else { x },
                 if steep { x } else { y },
                 self.color
-            );
+            ).unwrap();
 
             error -= dy;
             if error < 0 {
@@ -70,15 +70,14 @@ impl Line {
     }
 
 
-    pub fn draw_builtin_line(&self, renderer: &mut sdl2::render::Renderer) {
-        use sdl2::rect::Point;
-        let last = renderer.draw_color();
-        renderer.set_draw_color(self.color);
-        renderer.draw_line(
-            Point::new(self.p1.x as i32, self.p1.y as i32),
-            Point::new(self.p2.x as i32, self.p2.y as i32),
+    pub fn draw_builtin_line(&self, renderer: &Renderer) {
+        renderer.line(
+            self.p1.x as i16,
+            self.p1.y as i16,
+            self.p2.x as i16,
+            self.p2.y as i16,
+            self.color
         ).unwrap();
-        renderer.set_draw_color(last);
     }
 }
 
@@ -98,8 +97,7 @@ impl Primitive2D for Line {
     }
 
     #[inline]
-    fn draw<F>(&self, set_pixel: F)
-        where F: FnMut(i32, i32, Color) {
-        self.draw_bresenham_line(set_pixel);
+    fn draw(&self, renderer: &Renderer) {
+        self.draw_bresenham_line(renderer);
     }
 }

@@ -1,9 +1,9 @@
 extern crate sdl2;
+extern crate sdl2_gfx;
+
 use sdl2::pixels::Color;
-use sdl2::rect::Point;
 use sdl2::event::Event;
 use sdl2::keyboard::Scancode::*;
-use std::time::Duration;
 
 mod matrix;
 mod primitives;
@@ -12,13 +12,6 @@ use primitives::*;
 
 const WIDTH: u32 = 1280;
 const HEIGHT: u32 = 720;
-
-fn render_pixel(renderer: &mut sdl2::render::Renderer, x: i32, y: i32, color: Color) {
-    let last_color = renderer.draw_color();
-    renderer.set_draw_color(color);
-    renderer.draw_point(Point::new(x, y)).unwrap();
-    renderer.set_draw_color(last_color);
-}
 
 fn main() {
     // Initialize SDL2
@@ -34,6 +27,10 @@ fn main() {
 
     // Get renderer binded to window
     let mut renderer = window.renderer().build().unwrap();
+
+    // Create FPS manager to precisely control inter-frames delays
+    let mut fps_manager = sdl2_gfx::framerate::FPSManager::new();
+    fps_manager.set_framerate(60).unwrap();
 
     // Set draw color and clear the screen
     renderer.set_draw_color(Color::RGB(0, 0, 0));
@@ -103,17 +100,17 @@ fn main() {
         line2.rotate(angle);
 
         // Clear render buffer
+        renderer.set_draw_color(Color::RGB(0, 0, 0));
         renderer.clear();
 
         // Draw lines
-        line1.draw(|x, y, color| render_pixel(&mut renderer, x, y, color));
-        line2.draw_builtin_line(&mut renderer);
+        line1.draw(&renderer);
+        line2.draw_builtin_line(&renderer);
 
         // Present render buffer
         renderer.present();
 
-        // Sleep for 10 msecs
-        std::thread::sleep(Duration::from_millis(10));
+        // Sleep until the next frame should be rendered
+        fps_manager.delay();
     }
-
 }
