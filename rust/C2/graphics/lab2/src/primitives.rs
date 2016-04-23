@@ -1,12 +1,12 @@
 use sdl2::render::Renderer;
 
 pub struct Point2D {
-    pub x: i16,
-    pub y: i16,
+    pub x: f32,
+    pub y: f32,
 }
 
 impl Point2D {
-    pub fn new(x: i16, y: i16) -> Point2D {
+    pub fn new(x: f32, y: f32) -> Point2D {
         Point2D {
             x: x,
             y: y,

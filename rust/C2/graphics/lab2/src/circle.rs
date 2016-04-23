@@ -21,10 +21,10 @@ impl Circle {
 
     #[inline]
     pub fn draw_bresenham_circle(&self, renderer: &Renderer) {
-        let x0 = self.center.x;
-        let y0 = self.center.y;
+        let x0 = self.center.x as i16;
+        let y0 = self.center.y as i16;
 
-        let mut x = 0;
+        let mut x  = 0;
         let mut y  = self.radius;
         let mut dp = 1 - self.radius;
 
@@ -50,8 +50,8 @@ impl Circle {
 
     pub fn draw_builtin_circle(&self, renderer: &Renderer) {
         renderer.circle(
-            self.center.x,
-            self.center.y,
+            self.center.x as i16,
+            self.center.y as i16,
             self.radius,
             self.color
         ).unwrap();

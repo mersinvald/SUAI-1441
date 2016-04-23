@@ -45,9 +45,9 @@ fn main() {
     let mut events = sdl_context.event_pump().unwrap();
 
     // Set first circle center and radius
-    let startx1 = (WIDTH / 100 * 27) as i16;
-    let startx2 = (WIDTH / 100 * 80) as i16;
-    let starty  = (HEIGHT / 2)       as i16;
+    let startx1 = (WIDTH / 100 * 27) as f32;
+    let startx2 = (WIDTH / 100 * 80) as f32;
+    let starty  = (HEIGHT / 2)       as f32;
 
     // Set result text coordinates
     let textx = (WIDTH - 200) as i16;
