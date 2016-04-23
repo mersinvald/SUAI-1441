@@ -7,6 +7,15 @@ pub struct Point2D {
     pub y: f32,
 }
 
+impl Point2D {
+    pub fn new(x: f32, y: f32) -> Point2D {
+        Point2D {
+            x: x,
+            y: y,
+        }
+    }
+}
+
 pub trait Primitive2D {
     fn to_matrix(&self) -> Matrix;
     fn from_matrix(&mut self, m: &Matrix);

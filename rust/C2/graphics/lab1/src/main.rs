@@ -8,7 +8,7 @@ use std::time::Duration;
 mod matrix;
 mod primitives;
 mod line;
-use primitives::Primitive2D;
+use primitives::*;
 
 const WIDTH: u32 = 1280;
 const HEIGHT: u32 = 720;
@@ -50,18 +50,14 @@ fn main() {
 
     // Create lines
     let mut line1 = line::Line::new(
-        startx - 10.0,
-        starty1,
-        startx - 10.0,
-        starty2,
+        Point2D::new(startx - 10.0, starty1),
+        Point2D::new(startx - 10.0, starty2),
         Color::RGB(0, 255, 0)
     );
 
     let mut line2 = line::Line::new(
-        startx + 10.0,
-        starty1,
-        startx + 10.0,
-        starty2,
+        Point2D::new(startx + 10.0, starty1),
+        Point2D::new(startx + 10.0, starty2),
         Color::RGB(255, 0, 0)
     );
 

@@ -11,28 +11,18 @@ pub struct Line {
 }
 
 impl Line {
-    pub fn new(x1: f32, y1: f32, x2: f32, y2: f32, color: Color) -> Line {
-        Line {
-            p1: Point2D {x: x1, y: y1},
-            p2: Point2D {x: x2, y: y2},
-            average: Point2D {
-                x: (x1 + x2)/ 2.0,
-                y: (y1 + y2) / 2.0,
-            },
-            color: color,
-        }
-    }
-
     #[allow(dead_code)]
-    pub fn from_points(point1: Point2D, point2: Point2D, color: Color) -> Line {
+    pub fn new(point1: Point2D, point2: Point2D, color: Color) -> Line {
+        let average = Point2D::new(
+            (point2.x + point1.x) / 2.0,
+            (point2.y + point1.y) / 2.0,
+        );
+
         Line {
-            p1: Point2D {x: point1.x, y: point2.y},
-            p2: Point2D {x: point2.x, y: point2.y},
-            average: Point2D {
-                x: (point2.x + point1.x) / 2.0,
-                y: (point2.y + point2.y) / 2.0,
-            },
-            color: color,
+            p1:      point1,
+            p2:      point2,
+            average: average,
+            color:   color,
         }
     }
 
@@ -107,6 +97,7 @@ impl Primitive2D for Line {
         self.average = Point2D { x: m.matrix[2][0], y: m.matrix[2][1] };
     }
 
+    #[inline]
     fn draw<F>(&self, set_pixel: F)
         where F: FnMut(i32, i32, Color) {
         self.draw_bresenham_line(set_pixel);
