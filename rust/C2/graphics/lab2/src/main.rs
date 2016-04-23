@@ -1,5 +1,4 @@
 #![feature(step_by)]
-#![feature(inclusive_range_syntax)]
 
 extern crate sdl2;
 extern crate sdl2_gfx;
