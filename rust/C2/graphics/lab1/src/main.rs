@@ -7,7 +7,11 @@ use std::time::Duration;
 
 mod matrix;
 mod primitives;
+mod line;
 use primitives::Primitive2D;
+
+const WIDTH: u32 = 1280;
+const HEIGHT: u32 = 720;
 
 fn render_pixel(renderer: &mut sdl2::render::Renderer, x: i32, y: i32, color: Color) {
     let last_color = renderer.draw_color();
@@ -17,35 +21,54 @@ fn render_pixel(renderer: &mut sdl2::render::Renderer, x: i32, y: i32, color: Co
 }
 
 fn main() {
+    // Initialize SDL2
     let sdl_context   = sdl2::init().unwrap();
     let video_context = sdl_context.video().unwrap();
 
-    let window = video_context.window("Graphics Task 1", 500, 500)
+    // Create window
+    let window = video_context.window("Graphics Task 1", WIDTH, HEIGHT)
         .position_centered()
         .opengl()
         .build()
         .unwrap();
 
+    // Get renderer binded to window
     let mut renderer = window.renderer().build().unwrap();
 
+    // Set draw color and clear the screen
     renderer.set_draw_color(Color::RGB(0, 0, 0));
     renderer.clear();
     renderer.present();
 
-    //let mut set_pixel =
-
+    // Get event pump
     let mut events = sdl_context.event_pump().unwrap();
 
-    let mut line1 = primitives::Line::new(
-        100.0, 100.0, 350.0, 400.0, Color::RGB(0, 255, 0)
+    // Set initial lines coordinates
+    let startx  = ((WIDTH/2) - 10) as f32;
+    let starty1 = (HEIGHT/4)       as f32;
+    let starty2 = (HEIGHT/4*3)     as f32;
+
+    // Create lines
+    let mut line1 = line::Line::new(
+        startx - 10.0,
+        starty1,
+        startx - 10.0,
+        starty2,
+        Color::RGB(0, 255, 0)
     );
 
-    let mut line2 = primitives::Line::new(
-        150.0, 100.0, 400.0, 400.0, Color::RGB(255, 0, 0)
+    let mut line2 = line::Line::new(
+        startx + 10.0,
+        starty1,
+        startx + 10.0,
+        starty2,
+        Color::RGB(255, 0, 0)
     );
 
+    // Start main loop
     'main:
     loop {
+        // If exit event passed, break the loop
         for event in events.poll_iter() {
             match event {
                 Event::Quit {..} => break 'main,
@@ -53,23 +76,23 @@ fn main() {
             }
         }
 
-        // Initializing variables
+        // Initialize variables
         let mut dx = 0.0;
         let mut dy = 0.0;
         let mut scale = 1.0;
         let mut angle = 0.0;
 
-        // Poll through presed keys
+        // Poll presed keys
         for key in events.keyboard_state().pressed_scancodes() {
             match key {
-                Up      => dy -= 1.0,
-                Down    => dy += 1.0,
-                Right   => dx += 1.0,
-                Left    => dx -= 1.0,
-                W       => scale += 0.01,
-                S       => scale -= 0.01,
-                Q       => angle -= 1.0,
-                E       => angle += 1.0,
+                W       => dy -= 1.0,
+                S       => dy += 1.0,
+                D       => dx += 1.0,
+                A       => dx -= 1.0,
+                Up      => scale += 0.01,
+                Down    => scale -= 0.01,
+                Left    => angle -= 1.0,
+                Right   => angle += 1.0,
                 _       => (),
             }
         }
@@ -83,13 +106,17 @@ fn main() {
         line2.scale(scale, scale);
         line2.rotate(angle);
 
+        // Clear render buffer
         renderer.clear();
 
+        // Draw lines
         line1.draw(|x, y, color| render_pixel(&mut renderer, x, y, color));
         line2.draw_builtin_line(&mut renderer);
 
+        // Present render buffer
         renderer.present();
 
+        // Sleep for 10 msecs
         std::thread::sleep(Duration::from_millis(10));
     }
 
