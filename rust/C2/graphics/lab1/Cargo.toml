@@ -1,7 +1,7 @@
 [package]
 name = "lab1"
 version = "0.1.0"
-authors = ["Mike <lubinetsm@yandex.ru>"]
+authors = ["Mike Lubinets <lubinetsm@yandex.ru>"]
 
 [dependencies]
 sdl2 = "0.18"
