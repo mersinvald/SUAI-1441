@@ -1,8 +1,9 @@
 use sdl2;
 use sdl2::pixels::Color;
 use sdl2::render::Renderer;
-use sdl2_gfx::primitives::DrawRenderer;
+use sdl2_gfx::primitives::*;
 use primitives::*;
+
 
 pub struct Circle {
     center: Point2D,
@@ -28,15 +29,19 @@ impl Circle {
         let mut y  = self.radius;
         let mut dp = 1 - self.radius;
 
+        let color = self.color.as_u32();
+
         while x < y+1 {
-            renderer.pixel(x0 + x, y0 + y, self.color).unwrap();
-            renderer.pixel(x0 - x, y0 + y, self.color).unwrap();
-            renderer.pixel(x0 + x, y0 - y, self.color).unwrap();
-            renderer.pixel(x0 - x, y0 - y, self.color).unwrap();
-            renderer.pixel(x0 + y, y0 + x, self.color).unwrap();
-            renderer.pixel(x0 - y, y0 + x, self.color).unwrap();
-            renderer.pixel(x0 + y, y0 - x, self.color).unwrap();
-            renderer.pixel(x0 - y, y0 - x, self.color).unwrap();
+            unsafe {
+                ll::pixelColor(renderer.raw(), x0 + x, y0 + y, color);
+                ll::pixelColor(renderer.raw(), x0 - x, y0 + y, color);
+                ll::pixelColor(renderer.raw(), x0 + x, y0 - y, color);
+                ll::pixelColor(renderer.raw(), x0 - x, y0 - y, color);
+                ll::pixelColor(renderer.raw(), x0 + y, y0 + x, color);
+                ll::pixelColor(renderer.raw(), x0 - y, y0 + x, color);
+                ll::pixelColor(renderer.raw(), x0 + y, y0 - x, color);
+                ll::pixelColor(renderer.raw(), x0 - y, y0 - x, color);
+            }
 
             x += 1;
             if dp < 0 {

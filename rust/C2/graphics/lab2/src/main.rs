@@ -14,8 +14,8 @@ mod circle;
 use circle::*;
 use primitives::*;
 
-const WIDTH: u32 = 1280;
-const HEIGHT: u32 = 720;
+const WIDTH: u32 = 1600;
+const HEIGHT: u32 = 800;
 
 fn main() {
     // Initialize SDL2
@@ -45,18 +45,18 @@ fn main() {
     let mut events = sdl_context.event_pump().unwrap();
 
     // Set first circle center and radius
-    let startx1 = (WIDTH / 100 * 27) as f32;
-    let startx2 = (WIDTH / 100 * 80) as f32;
+    let startx1 = (WIDTH / 100 * 25) as f32;
+    let startx2 = (WIDTH / 100 * 75) as f32;
     let starty  = (HEIGHT / 2)       as f32;
 
     // Set result text coordinates
     let textx = (WIDTH - 200) as i16;
     let texty = 10;
     // Create circles
-    let mut bresenham_circles = Vec::with_capacity(80);
-    let mut builtin_circles   = Vec::with_capacity(80);
+    let mut bresenham_circles = Vec::with_capacity(131);
+    let mut builtin_circles   = Vec::with_capacity(131);
 
-    for r in (4..320).step_by(4) {
+    for r in (4..400).step_by(2) {
         bresenham_circles.push(
             Circle::new(
                 Point2D::new(startx1, starty),
