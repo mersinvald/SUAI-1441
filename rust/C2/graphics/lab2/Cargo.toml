@@ -5,4 +5,4 @@ authors = ["Mike Lubinets <lubinetsm@yandex.ru>"]
 
 [dependencies]
 sdl2 = "0.18"
-sdl2_gfx = { path = "/home/mike/dev/rust/forked/rust-sdl2_gfx" }
+sdl2_gfx = { git = "https://github.com/mersinvald/rust-sdl2_gfx.git" }
