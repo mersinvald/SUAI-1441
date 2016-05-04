@@ -1,5 +1,3 @@
-use sdl2;
-use sdl2::pixels::Color;
 use sdl2::render::Renderer;
 use matrix::*;
 
