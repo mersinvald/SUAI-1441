@@ -53,10 +53,10 @@ fn main() {
     let textx = (WIDTH - 200) as i16;
     let texty = 10;
     // Create circles
-    let mut bresenham_circles = Vec::with_capacity(131);
-    let mut builtin_circles   = Vec::with_capacity(131);
+    let mut bresenham_circles = Vec::with_capacity(200);
+    let mut builtin_circles   = Vec::with_capacity(200);
 
-    for r in (4..400).step_by(2) {
+    for r in (4..).step_by(2).take(198) {
         bresenham_circles.push(
             Circle::new(
                 Point2D::new(startx1, starty),
