@@ -1,0 +1,8 @@
+[package]
+name = "lab3"
+version = "0.1.0"
+authors = ["Mike <lubinetsm@yandex.ru>"]
+
+[dependencies]
+sdl2 = "0.18"
+sdl2_gfx = { git = "https://github.com/mersinvald/rust-sdl2_gfx.git" }
