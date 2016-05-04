@@ -34,7 +34,7 @@ fn main() {
 
     // Create FPS manager to precisely control inter-frames delays
     let mut fps_manager = sdl2_gfx::framerate::FPSManager::new();
-    fps_manager.set_framerate(10).unwrap();
+    fps_manager.set_framerate(30).unwrap();
 
     // Set draw color and clear the screen
     renderer.set_draw_color(Color::RGB(0, 0, 0));
@@ -49,14 +49,11 @@ fn main() {
     let startx2 = (WIDTH / 100 * 75) as f32;
     let starty  = (HEIGHT / 2)       as f32;
 
-    // Set result text coordinates
-    let textx = (WIDTH - 200) as i16;
-    let texty = 10;
     // Create circles
     let mut bresenham_circles = Vec::with_capacity(200);
     let mut builtin_circles   = Vec::with_capacity(200);
 
-    for r in (4..).step_by(2).take(198) {
+    for r in (4..).step_by(4).take(100) {
         bresenham_circles.push(
             Circle::new(
                 Point2D::new(startx1, starty),
@@ -74,6 +71,11 @@ fn main() {
         );
     }
 
+    let cache_size = 30;
+    let mut bresenham_cache = [0; 30];
+    let mut builtin_cache   = [0; 30];
+    let mut frame_counter   = 0;
+
     // Start main loop
     'main:
     loop {
@@ -90,52 +92,76 @@ fn main() {
         renderer.clear();
 
         // Plot circles
-        let builtin_duration = stopwatch(|| {
-            for c in &builtin_circles {
-                c.draw_builtin_circle(&renderer);
-            }
-        });
+        let (d1, d2) = draw_circles(&bresenham_circles, &builtin_circles, &renderer);
 
-        let bresenham_duration = stopwatch(|| {
-            for c in &bresenham_circles {
-                c.draw(&renderer);
-            }
-        });
+        bresenham_cache[frame_counter % 30] = d1;
+        builtin_cache[frame_counter % 30] = d2;
 
-        let faster = if bresenham_duration.subsec_nanos() > builtin_duration.subsec_nanos() {
-            "BUILTIN"
-        } else {
-            "MY IMPLEMENTATION"
-        };
+        // Calculate average time
+        let bresenham_avg = bresenham_cache.iter().fold(0, |sum, &val| {sum + val}) / cache_size;
+        let builtin_avg   = builtin_cache.iter().fold(0, |sum, &val| {sum + val}) / cache_size;
 
-        // Draw results
-        renderer.string(
-            textx,
-            texty,
-            &format!("Bresenham: {} ms", bresenham_duration.subsec_nanos() / 1000_000),
-            Color::RGB(255, 255, 255)
-        ).unwrap();
-
-        renderer.string(
-            textx,
-            texty + 15,
-            &format!("Builtin:   {} ms", builtin_duration.subsec_nanos() / 1000_000),
-            Color::RGB(255, 255, 255)
-        ).unwrap();
-
-        renderer.string(
-            textx,
-            texty + 30,
-            &format!("Faster: {}", faster),
-            Color::RGB(255, 255, 255)
-        ).unwrap();
+        // Draw text
+        draw_text(bresenham_avg, builtin_avg, &renderer);
 
         // Present render buffer
         renderer.present();
 
         // Sleep until the next frame should be rendered
         fps_manager.delay();
+        frame_counter += 1;
     }
+}
+
+fn draw_circles(bresenham: &Vec<Circle>, builtin: &Vec<Circle>,
+            renderer: &sdl2::render::Renderer) -> (u32, u32) {
+    // Plot circles
+    let builtin_duration = stopwatch(|| {
+        for c in builtin {
+            c.draw_builtin_circle(&renderer);
+        }
+    });
+
+    let bresenham_duration = stopwatch(|| {
+        for c in bresenham {
+            c.draw(&renderer);
+        }
+    });
+
+    (bresenham_duration.subsec_nanos(), builtin_duration.subsec_nanos())
+}
+
+fn draw_text(bresenham: u32, builtin: u32, renderer: &sdl2::render::Renderer) {
+    let faster = if bresenham > builtin {
+        "BUILTIN"
+    } else {
+        "MY IMPLEMENTATION"
+    };
+
+    let x = WIDTH as i16 - 300;
+    let y = 10;
+
+    // Draw results
+    renderer.string(
+        x,
+        y,
+        &format!("Bresenham: {} ms", bresenham / 1000_000),
+        Color::RGB(255, 255, 255)
+    ).unwrap();
+
+    renderer.string(
+        x,
+        y + 20,
+        &format!("Builtin:   {} ms", builtin / 1000_000),
+        Color::RGB(255, 255, 255)
+    ).unwrap();
+
+    renderer.string(
+        x,
+        y + 40,
+        &format!("Faster: {}", faster),
+        Color::RGB(255, 255, 255)
+    ).unwrap();
 }
 
 fn stopwatch<F>(mut closure: F) -> Duration
