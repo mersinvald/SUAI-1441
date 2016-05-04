@@ -78,14 +78,14 @@ fn main() {
         // Poll presed keys
         for key in events.keyboard_state().pressed_scancodes() {
             match key {
-                W       => dy -= 1.0,
-                S       => dy += 1.0,
-                D       => dx += 1.0,
-                A       => dx -= 1.0,
-                Up      => scale += 0.01,
-                Down    => scale -= 0.01,
-                Left    => angle -= 1.0,
-                Right   => angle += 1.0,
+                W       => dy -= 3.0,
+                S       => dy += 3.0,
+                D       => dx += 3.0,
+                A       => dx -= 3.0,
+                Up      => scale += 0.05,
+                Down    => scale -= 0.05,
+                Left    => angle -= 3.0,
+                Right   => angle += 3.0,
                 _       => (),
             }
         }
