@@ -10,7 +10,7 @@ namespace msvd {
 namespace math {
 
 
-Rational::Rational() : _num(0), _denum(0), _dec(0) {}
+Rational::Rational() : _num(0), _denum(1), _dec(0) {}
 Rational::Rational(int num, int denum) : _num(num), _denum(denum), _dec(0) {
     Simplify();
 }
@@ -126,7 +126,7 @@ operator/ (int b, const Rational& a) {
 
 std::ostream&
 operator<<(std::ostream& os, const Rational& obj) {
-    return os << ((obj._dec) ? std::to_string(obj._dec) + "+" : "") << obj._num << "/" << obj._denum;
+    return os << ((obj._dec) ? std::to_string(obj._dec) + "_" : "") << obj._num << "/" << obj._denum;
 }
 
 std::istream&

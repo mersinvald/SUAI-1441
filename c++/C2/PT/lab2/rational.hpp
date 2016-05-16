@@ -75,9 +75,9 @@ private:
     void Rationalize();
     void Simplify();
 
-    int      _num;    // Numenator
-    int      _denum;  // Denumenator
-    unsigned _dec;    // Integer
+    int _num;    // Numenator
+    int _denum;  // Denumenator
+    int _dec;    // Integer
 };
 
 } // math
