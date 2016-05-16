@@ -19,6 +19,13 @@ public:
     String& operator= (const String& b);
     String& operator= (const char* b);
 
+    friend bool operator== (const String& a, const String& b);
+    friend bool operator!= (const String& a, const String& b);
+    friend bool operator<  (const String& a, const String& b);
+    friend bool operator>  (const String& a, const String& b);
+    friend bool operator<= (const String& a, const String& b);
+    friend bool operator>= (const String& a, const String& b);
+
     friend String operator+ (const String& a, const String& b);
 
     char& operator[] (size_t index);

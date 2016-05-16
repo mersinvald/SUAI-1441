@@ -35,6 +35,30 @@ String::operator= (const char* b) {
     return *this;
 }
 
+bool operator== (const String& a, const String& b) {
+    return strcmp(a.c_str(), b.c_str()) ? false : true;
+}
+
+bool operator!= (const String& a, const String& b) {
+    return strcmp(a.c_str(), b.c_str()) ? true : false;
+}
+
+bool operator<  (const String& a, const String& b) {
+    return strcmp(a.c_str(), b.c_str()) < 0;
+}
+
+bool operator>  (const String& a, const String& b) {
+    return strcmp(a.c_str(), b.c_str()) > 0;
+}
+
+bool operator<= (const String& a, const String& b) {
+    return a < b || a == b;
+}
+
+bool operator>= (const String& a, const String& b) {
+    return a > b || a == b;
+}
+
 String
 operator+ (const String& a, const String& b) {
     SharedPtr<char> new_str(new char[a.len + b.len + 1]);
