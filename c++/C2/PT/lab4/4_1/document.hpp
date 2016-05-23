@@ -17,18 +17,12 @@ public:
     virtual ~AbstractDocument() {}
 
     virtual void          promt() = 0;
+
     virtual std::ostream& write (std::ostream& os) const = 0;
     virtual std::istream& read (std::istream& is) = 0;
 
-    friend std::ostream& operator<< (std::ostream& os, const AbstractDocument& obj) {
-        obj.write(os);
-        return os;
-    }
-
-    friend std::istream& operator>> (std::istream& is, AbstractDocument& obj) {
-        obj.read(is);
-        return is;
-    }
+    friend std::ostream& operator<< (std::ostream& os, const AbstractDocument& obj);
+    friend std::istream& operator>> (std::istream& is, AbstractDocument& obj);
 
 protected:
     const int   type;
@@ -43,37 +37,8 @@ public:
     explicit AbstractDatedDocument(int type)
         : AbstractDocument(type, true), birthDate(0) {}
 
-    static time_t getDate(std::istream& is) {
-        tm date {};
-
-        std::string s;
-        is >> s;
-        std::stringstream ss;
-        ss << s;
-
-        char delim = '.';
-        for(int i = 0; i < 3; i++) {
-            getline(ss, s, delim);
-            if(s[0] == '\n') {
-                s.erase(s.begin(), s.begin()+1);
-            }
-            switch(i) {
-            case 0: date.tm_mday = std::stoi(s); break;
-            case 1: date.tm_mon  = std::stoi(s); delim = '\n'; break;
-            case 2: date.tm_year = std::stoi(s); break;
-            }
-        }
-        return timelocal(&date);
-    }
-
-    static void printTime(std::ostream& os, time_t time) {
-        tm* date = localtime(&time);
-        os << std::setw(2) << std::setfill('0') << date->tm_mday << "."
-           << std::setw(2) << std::setfill('0') << date->tm_mon << "."
-           << date->tm_year
-           << " ";
-    }
-
+    static time_t getDate(std::istream& is);
+    static void printTime(std::ostream& os, time_t time);
 
 protected:
     time_t birthDate;
@@ -86,10 +51,6 @@ struct AbstractDocumentCreator {
         : type(t), name(n) {}
 
     virtual DocumentPointer operator()() = 0;
-
-    friend std::ostream& operator << (std::ostream& os, const AbstractDocumentCreator& obj) {
-        return os << obj.type << ": " << obj.name;
-    }
 
     int type;
     std::string name;

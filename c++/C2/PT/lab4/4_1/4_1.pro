@@ -10,7 +10,8 @@ SOURCES += main.cpp \
     ID.cpp \
     internationalid.cpp \
     documentmanager.cpp \
-    documentfactory.cpp
+    documentfactory.cpp \
+    document.cpp
 
 HEADERS += \
     document.hpp \

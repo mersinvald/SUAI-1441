@@ -6,14 +6,13 @@ DocumentManager::DocumentManager() {}
 void
 DocumentManager::promt() {
     int n;
-
-    // Спрашиваем кол-во документов
     std::cout << "Enter number of your documents: ";
     std::cin  >> n;
 
+    // Create N documents
     for(int i = 0; i < n; i++) {
         std::cout << std::endl << "Document #" << i << std::endl;
-        doclist.push_back(std::move(DocumentFactory::promt()));
+        doclist.push_back(DocumentFactory::promt());
     }
 }
 

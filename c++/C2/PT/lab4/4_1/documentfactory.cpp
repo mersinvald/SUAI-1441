@@ -35,7 +35,8 @@ DocumentPointer
 DocumentFactory::promt() {
     std::cout << "Availible document types:" << std::endl;
     for(auto& type : creatorMap) {
-        std::cout << *type.second.get() << std::endl;
+        auto& dt = *type.second.get();
+        std::cout << dt.type << ": " << dt.name << std::endl;
     }
 
     int type;
