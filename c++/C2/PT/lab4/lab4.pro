@@ -6,17 +6,17 @@ CONFIG -= qt
 QMAKE_CXXFLAGS=-O0
 
 SOURCES += main.cpp \
-    studentid.cpp \
     ID.cpp \
-    internationalid.cpp \
-    documentmanager.cpp \
-    documentfactory.cpp \
-    document.cpp
+    AbstractDocument.cpp \
+    DocumentFactory.cpp \
+    DocumentManager.cpp \
+    InternationalID.cpp \
+    StudentID.cpp
 
 HEADERS += \
-    document.hpp \
     ID.hpp \
-    internationalid.hpp \
-    studentid.hpp \
-    documentmanager.hpp \
-    documentfactory.hpp
+    AbstractDocument.hpp \
+    DocumentFactory.hpp \
+    DocumentManager.hpp \
+    InternationalID.hpp \
+    StudentID.hpp

@@ -1,5 +1,5 @@
-#include "studentid.hpp"
-#include "documentfactory.hpp"
+#include "StudentID.hpp"
+#include "DocumentFactory.hpp"
 
 void
 StudentIDCreator::Init() {

@@ -1,5 +1,5 @@
-#include "internationalid.hpp"
-#include "documentfactory.hpp"
+#include "InternationalID.hpp"
+#include "DocumentFactory.hpp"
 
 void
 InternationalIDCreator::Init() {

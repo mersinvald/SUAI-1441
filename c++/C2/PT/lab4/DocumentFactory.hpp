@@ -1,6 +1,6 @@
 #ifndef DOCUMENTFABRIC_H
 #define DOCUMENTFABRIC_H
-#include "document.hpp"
+#include "AbstractDocument.hpp"
 #include <sstream>
 #include <map>
 #include <exception>

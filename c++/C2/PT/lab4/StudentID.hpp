@@ -1,6 +1,6 @@
 #ifndef STUDENTID_H
 #define STUDENTID_H
-#include "document.hpp"
+#include "AbstractDocument.hpp"
 
 enum {
     DocType_StudentID = 3

@@ -1,4 +1,4 @@
-#include "documentmanager.hpp"
+#include "DocumentManager.hpp"
 #include <fstream>
 
 DocumentManager::DocumentManager() {}

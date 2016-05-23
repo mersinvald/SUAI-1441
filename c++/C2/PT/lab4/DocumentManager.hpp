@@ -1,7 +1,7 @@
 #ifndef DOCUMENTMANAGER_H
 #define DOCUMENTMANAGER_H
-#include "document.hpp"
-#include "documentfactory.hpp"
+#include "AbstractDocument.hpp"
+#include "DocumentFactory.hpp"
 #include <string>
 #include <list>
 #include <memory>

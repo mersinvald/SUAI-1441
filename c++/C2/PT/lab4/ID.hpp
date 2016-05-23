@@ -1,6 +1,6 @@
 #ifndef PASSPORT_H
 #define PASSPORT_H
-#include "document.hpp"
+#include "AbstractDocument.hpp"
 #include <time.h>
 #include <memory>
 

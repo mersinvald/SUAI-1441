@@ -1,8 +1,8 @@
 #include <iostream>
-#include "documentmanager.hpp"
+#include "DocumentManager.hpp"
 #include "ID.hpp"
-#include "internationalid.hpp"
-#include "studentid.hpp"
+#include "InternationalID.hpp"
+#include "StudentID.hpp"
 
 using namespace std;
 

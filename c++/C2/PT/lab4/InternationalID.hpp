@@ -1,6 +1,6 @@
 #ifndef INTERNATIONALID_H
 #define INTERNATIONALID_H
-#include "document.hpp"
+#include "AbstractDocument.hpp"
 
 enum {
     DocType_InternetionalID = 2

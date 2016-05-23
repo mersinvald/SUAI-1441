@@ -1,4 +1,4 @@
-#include "document.hpp"
+#include "AbstractDocument.hpp"
 
 std::ostream& operator<< (std::ostream& os, const AbstractDocument& obj) {
     obj.write(os);
