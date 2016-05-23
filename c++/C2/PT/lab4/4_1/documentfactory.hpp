@@ -20,7 +20,6 @@ public:
     static DocumentPointer          create(int type);
     static DocumentPointer          promt();
 
-private:
     static std::map<int, CreatorPointer> creatorMap;
 };
 

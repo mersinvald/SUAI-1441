@@ -3,6 +3,8 @@ CONFIG += console c++11
 CONFIG -= app_bundle
 CONFIG -= qt
 
+QMAKE_CXXFLAGS=-O0
+
 SOURCES += main.cpp \
     studentid.cpp \
     ID.cpp \

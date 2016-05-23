@@ -22,9 +22,7 @@ protected:
 
 struct InternationalIDCreator : public AbstractDocumentCreator {
     using AbstractDocumentCreator::AbstractDocumentCreator;
-    static struct Initializer {
-        Initializer();
-    } initializer;
+    static void Init();
     virtual DocumentPointer operator()();
 };
 

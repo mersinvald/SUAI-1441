@@ -1,8 +1,8 @@
 #include "internationalid.hpp"
 #include "documentfactory.hpp"
 
-InternationalIDCreator::Initializer InternationalIDCreator::initializer;
-InternationalIDCreator::Initializer::Initializer() {
+void
+InternationalIDCreator::Init() {
     DocumentFactory::push(new InternationalIDCreator(DocType_InternetionalID, "International Passport"));
 }
 
@@ -13,21 +13,23 @@ InternationalIDCreator::operator()() {
 
 std::ostream&
 InternationalID::write(std::ostream& os) const {
-    return os << type << " "
-              << name << " "
-              << secondName << " "
-              << birthDate << " "
-              << startDate << " "
-              << endDate << " ";
+    os << type << " "
+       << name << " "
+       << secondName << " ";
+    InternationalID::printTime(os, birthDate);
+    InternationalID::printTime(os, startDate);
+    InternationalID::printTime(os, endDate);
+    return os;
 }
 
 std::istream&
 InternationalID::read(std::istream& is) {
-    return is >> name
-              >> secondName
-              >> birthDate
-              >> startDate
-              >> endDate;
+    is >> name
+       >> secondName;
+    birthDate = InternationalID::getDate(is);
+    startDate = InternationalID::getDate(is);
+    endDate = InternationalID::getDate(is);
+    return is;
 }
 
 void
@@ -41,5 +43,5 @@ InternationalID::promt() {
     std::cout << "Start Date:   ";
     startDate = InternationalID::getDate(std::cin);
     std::cout << "End Date:     ";
-    startDate = InternationalID::getDate(std::cin);
+    endDate = InternationalID::getDate(std::cin);
 }

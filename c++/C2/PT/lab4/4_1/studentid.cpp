@@ -1,8 +1,8 @@
 #include "studentid.hpp"
 #include "documentfactory.hpp"
 
-StudentIDCreator::Initializer StudentIDCreator::initializer;
-StudentIDCreator::Initializer::Initializer() {
+void
+StudentIDCreator::Init() {
     DocumentFactory::push(new StudentIDCreator(DocType_StudentID, "Student ID"));
 }
 

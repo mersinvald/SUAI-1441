@@ -10,9 +10,9 @@ DocumentManager::promt() {
     // Спрашиваем кол-во документов
     std::cout << "Enter number of your documents: ";
     std::cin  >> n;
-    std::cout << std::endl;
 
     for(int i = 0; i < n; i++) {
+        std::cout << std::endl << "Document #" << i << std::endl;
         doclist.push_back(std::move(DocumentFactory::promt()));
     }
 }
@@ -34,12 +34,13 @@ DocumentManager::load(const std::string& filename) {
     while(file >> type) {
         auto doc = DocumentFactory::create(type);
         file >> *doc;
+        push(doc);
     }
 }
 
 void
-DocumentManager::push(DocumentPointer doc) {
-    doclist.push_back(std::move(doc));
+DocumentManager::push(const DocumentPointer& doc) {
+    doclist.push_back(doc);
 }
 
 void
@@ -50,9 +51,11 @@ DocumentManager::push(AbstractDocument* docptr) {
 
 void
 DocumentManager::del(int type) {
-    for(auto it = doclist.begin(); it != doclist.end(); ++it) {
+    for(auto it = doclist.begin(); it != doclist.end();) {
         if(it->get()->type == type) {
-            doclist.erase(it);
+            it = doclist.erase(it);
+        } else {
+            ++it;
         }
     }
 }

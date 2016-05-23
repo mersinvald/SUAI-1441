@@ -25,9 +25,7 @@ protected:
 class IDCreator : public AbstractDocumentCreator {
 public:
     using AbstractDocumentCreator::AbstractDocumentCreator;
-    static struct Initializer {
-        Initializer();
-    } initializer;
+    static void Init();
     virtual DocumentPointer operator()();
 };
 

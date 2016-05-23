@@ -2,8 +2,8 @@
 #include "documentfactory.hpp"
 #include <memory>
 
-IDCreator::Initializer IDCreator::initializer;
-IDCreator::Initializer::Initializer() {
+void
+IDCreator::Init() {
     DocumentFactory::push(new IDCreator(DocType_ID, "Passport"));
 }
 
@@ -14,21 +14,23 @@ IDCreator::operator()() {
 
 std::ostream&
 ID::write(std::ostream& os) const {
-    return os << type << " "
-              << name << " "
-              << secondName << " "
-              << fatherName << " "
-              << birthDate << " "
-              << startDate << " ";
+    os << type << " "
+       << name << " "
+       << secondName << " "
+       << fatherName << " ";
+    ID::printTime(os, birthDate);
+    ID::printTime(os, startDate);
+    return os;
 }
 
 std::istream&
 ID::read(std::istream& is) {
-    return is >> name
-              >> secondName
-              >> fatherName
-              >> birthDate
-              >> startDate;
+    is >> name
+       >> secondName
+       >> fatherName;
+    birthDate = ID::getDate(is);
+    startDate = ID::getDate(is);
+    return is;
 }
 
 void

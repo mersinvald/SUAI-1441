@@ -1,16 +1,18 @@
 #ifndef DOCUMENT_H
 #define DOCUMENT_H
 #include <string>
+#include <sstream>
 #include <iostream>
 #include <memory>
 #include <cstdlib>
+#include <iomanip>
 
 class AbstractDocument {
 public:
     friend class DocumentManager;
 
     explicit AbstractDocument(int type, bool dated)
-        : type(type), dated(false), name(""), secondName("") {}
+        : type(type), dated(dated), name(""), secondName("") {}
 
     virtual ~AbstractDocument() {}
 
@@ -42,13 +44,22 @@ public:
         : AbstractDocument(type, true), birthDate(0) {}
 
     static time_t getDate(std::istream& is) {
-        tm date = {};
+        tm date {};
+
         std::string s;
+        is >> s;
+        std::stringstream ss;
+        ss << s;
+
+        char delim = '.';
         for(int i = 0; i < 3; i++) {
-            getline(is, s, '.');
+            getline(ss, s, delim);
+            if(s[0] == '\n') {
+                s.erase(s.begin(), s.begin()+1);
+            }
             switch(i) {
             case 0: date.tm_mday = std::stoi(s); break;
-            case 1: date.tm_mon  = std::stoi(s); break;
+            case 1: date.tm_mon  = std::stoi(s); delim = '\n'; break;
             case 2: date.tm_year = std::stoi(s); break;
             }
         }
@@ -57,7 +68,10 @@ public:
 
     static void printTime(std::ostream& os, time_t time) {
         tm* date = localtime(&time);
-        os << date->tm_mday << "." << date->tm_mon << "." << date->tm_year;
+        os << std::setw(2) << std::setfill('0') << date->tm_mday << "."
+           << std::setw(2) << std::setfill('0') << date->tm_mon << "."
+           << date->tm_year
+           << " ";
     }
 
 
@@ -65,7 +79,7 @@ protected:
     time_t birthDate;
 };
 
-typedef std::unique_ptr<AbstractDocument> DocumentPointer;
+typedef std::shared_ptr<AbstractDocument> DocumentPointer;
 
 struct AbstractDocumentCreator {
     explicit AbstractDocumentCreator(int t, const std::string n)
@@ -81,6 +95,6 @@ struct AbstractDocumentCreator {
     std::string name;
 };
 
-typedef std::unique_ptr<AbstractDocumentCreator> CreatorPointer;
+typedef std::shared_ptr<AbstractDocumentCreator> CreatorPointer;
 
 #endif // DOCUMENT_H

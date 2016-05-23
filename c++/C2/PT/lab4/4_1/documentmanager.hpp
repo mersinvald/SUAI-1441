@@ -15,7 +15,7 @@ public:
     void save(const std::string& filename) const;
     void load(const std::string& filename);
 
-    void push(DocumentPointer doc);
+    void push(const DocumentPointer& doc);
     void push(AbstractDocument* docptr);
     void del(int type);
 
