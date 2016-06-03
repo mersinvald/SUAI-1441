@@ -28,10 +28,10 @@ class Matrix4 : public PT_l1_t3::Matrix3 {
 public:
     using Matrix3::Matrix3;
 
-    int Determinant();
+    int64_t Determinant();
 
 private:
-    static int Determinant(int** matrix, size_t size);
+    static int64_t Determinant(int** matrix, const size_t size);
 };
 
 }

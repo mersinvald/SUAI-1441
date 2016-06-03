@@ -5,10 +5,12 @@ using namespace std;
 using namespace PT_l1_t5;
 
 
-int main() {
+int main(int argc, char** argv) {
     Matrix4 m;
 
-    m.Init(6);
+    int size = atoi(argv[1]);
+
+    m.Init(size);
     m.Print();
 
     cout << "Det: " << m.Determinant() << endl;
