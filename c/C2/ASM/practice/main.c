@@ -37,7 +37,7 @@ init_matrices(float* A, float* B, float* r) {
 void
 timer(void (*func)(const float*, const float*, float*), const float* A, const float* B, float* r, const char* name) {
     static const int runs = 10;
-    static const int iter = 500000;
+    static const int iter = 5000000;
     time_t total_time = 0;
 
     for(int i = 0; i < runs; i++) {
@@ -96,34 +96,32 @@ multiply_sse_asm(const float* A, const float* B, float* result) {
      */
 
     asm __volatile__ (
-    "   xor rcx, rcx;"                   // set i-loop counter to 0
-    " ILoop:"                            // push i-loop counter
-    "     xor   rax, rax;"               // set j-loop counter to 0
-    "     pxor  xmm1, xmm1;"             // set result line to 0
-    "     mov   r8, %0;"                 // copy A addr to r8
-    "     lea   r9, [%1 + 4 * rcx];"     // copy B addr to r9
+    "   mov rcx, 4;"                     // Set i-loop counter to 4
+    " ILoop:"
+    "     mov   rax, 4;"                 // Set j-loop counter to 4
+    "     pxor  xmm1, xmm1;"             // Set result line to 0
+    "     mov   r9, %0;"                 // Copy A-addr to r9
     "   JLoop:"
     // Load B[i+j] to XMM0 (scalar)
-    "       movss   xmm0, [r9];"
-    "       add     r9,  4;"             // B addr + 1 (i+j)
-    "       shufps  xmm0, xmm0, 0;"
+    "       movss   xmm0, [%1];"         // Move B to xmm0
+    "       lea     %1,   [%1+4];"       // B addr + 1
+    "       shufps  xmm0, xmm0, 0;"      // Broadcast B to all xmm0 parts
     // Multiply XMM0 by A[4*j], write to XMM0
-    "       mulps   xmm0,  [r8];"
-    "       add     r8,   16;"           // A addr + 16 (j*4)
+    "       mulps   xmm0, [r9];"
+    "       lea     r9,   [r9+16];"      // A addr + 4 (line)
     // Add XMM0 to XMM1, write to XMM1
     "       addps   xmm1, xmm0;"
 
-    "       inc    rax;"                  // increment j-loop counter
-    "       cmp    rax, 4;"               // jump to JLoop if rcx < 4
-    "       jne    JLoop;"
+    "       dec     rax;"                // Decrement j-counter
+    "       jnz     JLoop;"              // Jump if j-counter != 0
     // Save XMM3 to result
-    "     movaps [%2 + 4*rcx], xmm1;"
-    "     add rcx, 4;"                    // increment j-loop counter by 4
-    "     cmp rcx, 16;"                  // jump to ILoop if rcx < 0
-    "     jne ILoop;"
+    "     movaps [%2], xmm1;"            // Write result vector to current result line
+    "     lea %2, [%2+16];"              // result addr + 4 (line)
+    "     dec rcx;"                      // Decrement i-counter
+    "     jnz ILoop;"                    // Jump if i-counter != 0
     :
     : "r" (A), "r" (B), "r" (result)
-    : "rcx", "rax", "r8", "r9", "xmm0", "xmm1"
+    : "rcx", "rax", "r9","xmm0", "xmm1"
     );
 }
 
@@ -133,25 +131,24 @@ int main() {
     float result[16] __attribute__ ((aligned (16)));
 
     init_matrices(A, B, result);
-    print_matrix(A, "Matrix A");
-    printf("\n\n");
-    print_matrix(B, "Matrix B");
-    printf("\n\n");
+    //print_matrix(A, "Matrix A");
+    //printf("\n\n");
+    //print_matrix(B, "Matrix B");
+    //printf("\n\n");
 
+    //timer(multiply_naive, A, B, result, "Naive multiplication");
+    //print_matrix(result, "Naive multiplication");
+    //printf("\n\n");
 
-    timer(multiply_naive, A, B, result, "Naive multiplication");
-    print_matrix(result, "Naive multiplication");
-    printf("\n\n");
-
-    init_matrices(A, B, result);
+    //init_matrices(A, B, result);
     timer(multiply_sse, A, B, result, "SSE multiplication");
-    print_matrix(result, "SSE multiplication");
-    printf("\n\n");
+    //print_matrix(result, "SSE multiplication");
+    //printf("\n\n");
 
-    init_matrices(A, B, result);
+    //init_matrices(A, B, result);
     timer(multiply_sse_asm, A, B, result, "SSE multiplication, ASM");
-    print_matrix(result, "SSE multiplication, ASM");
-    printf("\n\n");
+    //print_matrix(result, "SSE multiplication, ASM");
+    //printf("\n\n");
 
     return 0;
 }
