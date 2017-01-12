@@ -80,7 +80,7 @@ impl Primitive3D for Pyramide {
 
     fn draw(&mut self, renderer: &Renderer) {
         let matrix = self.inner_matrix().clone();
-        let m2d = matrix * Matrix::camera_matrix(2.0, 1280.0/720.0, 0.0, 100.0);
+        let m2d = matrix * Matrix::camera_matrix(90.0, 1280.0/720.0, 0.1, 100.0);
         let top_2d = Point2D::from(&m2d[0]);
 
         for i in 0..5 {
@@ -101,8 +101,8 @@ impl Primitive3D for Pyramide {
                      / self.points.len() as f64;
 
         let matrix = self.inner_matrix().clone();
-        let m2d = matrix * Matrix::camera_matrix(2.0, 1280.0/720.0, 0.0, 100.0);
-
+        let m2d = matrix * Matrix::camera_matrix(90.0, 1280.0/720.0, 0.1, 100.0);
+        
         let top = &self.points[0];
         let top_2d = Point2D::from(&m2d[0]);
 

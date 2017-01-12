@@ -229,25 +229,24 @@ impl Matrix {
 
     #[inline]
     pub fn orthographic_projection_matrix() -> Matrix {
+        let a = 45.0_f64.to_radians();
+        let l = -0.5;
         Matrix::Static(
             [[1.0, 0.0, 0.0, 0.0],
              [0.0, 1.0, 0.0, 0.0],
-             [0.0, 0.0, 0.0, 0.0],
+             [l * a.cos() , l * a.sin(), 0.0, 0.0],
              [0.0, 0.0, 0.0, 1.0]]
         )
     }
 
     #[inline]
     pub fn camera_matrix(fov: f64, aspect: f64, near: f64, far: f64) -> Matrix {
-        let fDepth = far - near;
-        let fDepth = 1.0 / fDepth;
-
-        let r1 = 1.0/(0.5*fov).tan();
+        let scale = 1.0 / (fov * 0.5_f64.to_radians()).tan(); 
         Matrix::Static(
-            [[r1, 0.0,  0.0,          0.0],
-             [0.0,       r1/aspect,   0.0,          0.0],
-             [0.0,       0.0,  far * fDepth, (-far*near) * fDepth],
-             [0.0,       0.0,  1.0,          0.0]]
+            [[scale, 0.0,   0.0,                  0.0],
+             [0.0,   scale, 0.0,                  0.0],
+             [0.0,   0.0,   -far/(far-near),     -1.0],
+             [0.0,   0.0,   -far*near/(far-near), 0.0]]
         )
     }
 
