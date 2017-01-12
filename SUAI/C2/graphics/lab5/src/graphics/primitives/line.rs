@@ -85,8 +85,8 @@ impl Line {
 impl Primitive2D for Line {
     fn to_matrix(&self) -> Matrix {
         Matrix::new(
-            vec![vec![self.p1.x,      self.p1.y,      1.0],
-                 vec![self.p2.x,      self.p2.y,      1.0]]
+            vec![[self.p1.x,      self.p1.y,      1.0, 0.0],
+                 [self.p2.x,      self.p2.y,      1.0, 0.0]]
         )
     }
 

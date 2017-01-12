@@ -47,8 +47,8 @@ impl<'a> std::convert::From<&'a Point3D> for Point2D {
     }
 }
 
-impl<'a> std::convert::From<&'a Vec<f64>> for Point2D {
-    fn from(f: &Vec<f64>) -> Self {
+impl<'a> std::convert::From<&'a [f64; 4]> for Point2D {
+    fn from(f: &[f64; 4]) -> Self {
         Point2D::new (
             f[0],
             f[1],

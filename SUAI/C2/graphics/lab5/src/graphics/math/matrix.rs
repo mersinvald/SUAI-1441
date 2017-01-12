@@ -4,11 +4,11 @@ use std::clone::Clone;
 
 #[derive(Debug)]
 pub struct Matrix {
-    pub matrix: Vec<[f32; 4]>,
+    pub matrix: Vec<[f64; 4]>,
 }
 
 impl Matrix {
-    pub fn new(rows: Vec<[f32; 4]>) -> Matrix {
+    pub fn new(rows: Vec<[f64; 4]>) -> Matrix {
         Matrix {
             matrix: rows
         }
@@ -27,7 +27,8 @@ impl Mul for Matrix {
     type Output = Matrix;
 
     fn mul(self, _rhs: Matrix) -> Matrix {
-        let rows_cnt = _rhs.matrix.len();
+        use std::cmp;
+        let rows_cnt = cmp::max(_rhs.matrix.len(), self.matrix.len());
         let mut new = Matrix::null_matrix(rows_cnt);
         for row in 0..rows_cnt {
             for col in 0..4 {
@@ -63,7 +64,7 @@ impl Matrix {
     }
 
     #[inline]
-    pub fn translation_matrix(dx: f32, dy: f32) -> Matrix {
+    pub fn translation_matrix(dx: f64, dy: f64) -> Matrix {
         Matrix::new(
             vec![[1.0, 0.0, 0.0, 0.0],
                  [0.0, 1.0, 0.0, 0.0],
@@ -72,7 +73,7 @@ impl Matrix {
     }
 
     #[inline]
-    pub fn scale_matrix(sx: f32, sy: f32) -> Matrix {
+    pub fn scale_matrix(sx: f64, sy: f64) -> Matrix {
         Matrix::new(
             vec![[sx,  0.0, 0.0, 0.0],
                  [0.0, sy,  0.0, 0.0],
@@ -81,7 +82,7 @@ impl Matrix {
     }
 
     #[inline]
-    pub fn rotation_matrix(angle: f32) -> Matrix {
+    pub fn rotation_matrix(angle: f64) -> Matrix {
         let a = angle.to_radians();
         Matrix::new(
             vec![[ a.cos(), a.sin(), 0.0, 0.0],
@@ -101,7 +102,7 @@ impl Matrix {
     }
 
     #[inline]
-    pub fn translation_matrix_3D(dx: f32, dy: f32, dz: f32) -> Matrix {
+    pub fn translation_matrix_3D(dx: f64, dy: f64, dz: f64) -> Matrix {
         Matrix::new(
             vec![[1.0, 0.0, 0.0, 0.0],
                  [0.0, 1.0, 0.0, 0.0],
@@ -111,7 +112,7 @@ impl Matrix {
     }
 
     #[inline]
-    pub fn scale_matrix_3D(sx: f32, sy: f32, sz: f32) -> Matrix {
+    pub fn scale_matrix_3D(sx: f64, sy: f64, sz: f64) -> Matrix {
         Matrix::new(
             vec![[sx,  0.0, 0.0, 0.0],
                  [0.0, sy,  0.0, 0.0],
@@ -121,7 +122,7 @@ impl Matrix {
     }
 
     #[inline]
-    pub fn rotation_matrix_x(angle: f32) -> Matrix {
+    pub fn rotation_matrix_x(angle: f64) -> Matrix {
         let a = angle.to_radians();
         Matrix::new(
             vec![[1.0, 0.0,     0.0,     0.0],
@@ -132,7 +133,7 @@ impl Matrix {
     }
 
     #[inline]
-    pub fn rotation_matrix_y(angle: f32) -> Matrix {
+    pub fn rotation_matrix_y(angle: f64) -> Matrix {
         let a = angle.to_radians();
         Matrix::new(
             vec![[a.cos(), 0.0,-a.sin(), 0.0],
@@ -143,7 +144,7 @@ impl Matrix {
     }
 
     #[inline]
-    pub fn rotation_matrix_z(angle: f32) -> Matrix {
+    pub fn rotation_matrix_z(angle: f64) -> Matrix {
         let a = angle.to_radians();
         Matrix::new(
             vec![[a.cos(),   a.sin(), 0.0, 0.0],
@@ -164,7 +165,7 @@ impl Matrix {
     }
 
     #[inline]
-    pub fn camera_matrix(fov: f32, aspect: f32, near: f32, far: f32) -> Matrix {
+    pub fn camera_matrix(fov: f64, aspect: f64, near: f64, far: f64) -> Matrix {
         let fDepth = far - near;
         let fDepth = 1.0 / fDepth;
 

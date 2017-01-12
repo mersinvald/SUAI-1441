@@ -5,6 +5,7 @@ use sdl2_gfx::primitives::DrawRenderer;
 use graphics::primitives::*;
 use graphics::math::matrix::*;
 
+#[derive(Debug)]
 pub struct Pyramide {
     pub points: Vec<Point3D>,
     anchor: Point3D,
@@ -50,16 +51,18 @@ impl Primitive3D for Pyramide {
     fn to_matrix(&self) -> Matrix {
         let p = &self.points;
         Matrix::new(
-            vec![vec![p[0].x, p[0].y, p[0].z, 1.0],
-                 vec![p[1].x, p[1].y, p[1].z, 1.0],
-                 vec![p[2].x, p[2].y, p[2].z, 1.0],
-                 vec![p[3].x, p[3].y, p[3].z, 1.0],
-                 vec![p[4].x, p[4].y, p[4].z, 1.0]]
+            vec![[p[0].x, p[0].y, p[0].z, 1.0],
+                 [p[1].x, p[1].y, p[1].z, 1.0],
+                 [p[2].x, p[2].y, p[2].z, 1.0],
+                 [p[3].x, p[3].y, p[3].z, 1.0],
+                 [p[4].x, p[4].y, p[4].z, 1.0]]
         )
     }
 
     // TODO: From Vec to Point
     fn from_matrix(&mut self, m: &Matrix) {
+        println!("{:?}", self);
+        println!("{:?}", m);
         for i in 0..5 {
             self.points[i].x = m.matrix[i][0];
             self.points[i].y = m.matrix[i][1];
