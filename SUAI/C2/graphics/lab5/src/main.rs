@@ -4,6 +4,7 @@ extern crate sdl2_gfx;
 use sdl2::pixels::Color;
 use sdl2::event::Event;
 use sdl2::keyboard::Scancode::*;
+use std::time::Duration;
 
 mod graphics;
 use graphics::primitives::*;
@@ -59,6 +60,9 @@ fn main() {
         ]
     );
 
+    let mut transform_times = [0; 30];
+    let mut frame = 0;
+
     // Start main loop
     'main:
     loop {
@@ -106,13 +110,15 @@ fn main() {
         renderer.set_draw_color(Color::RGB(0, 0, 0));
         renderer.clear();
 
-        // Do affine transformations and draw
-        pyramid.rotate(rx, ry, rz);
-        pyramid.scale(scale, scale, scale);
-        pyramid.translate(dx, dy, dz);
+        transform_times[frame % 30] = stopwatch(|| {
+            // Do affine transformations and draw
+            pyramid.rotate(rx, ry, rz);
+            pyramid.scale(scale, scale, scale);
+            pyramid.translate(dx, dy, dz);
 
-        // Draw
-        pyramid.draw(&renderer);
+            // Draw
+            pyramid.draw(&renderer);
+        }).subsec_nanos();
 
         if fill {
             pyramid.fill(&renderer);
@@ -123,5 +129,19 @@ fn main() {
 
         // Sleep until the next frame should be rendered
         fps_manager.delay();
+        frame += 1;
+
+        if frame > 30 {
+            println!("{}", transform_times.iter().sum::<u32>() / 30_32);
+        }
     }
+}
+
+fn stopwatch<F>(mut closure: F) -> Duration
+    where F: FnMut() {
+    use std::time::SystemTime;
+    let before_time = SystemTime::now();
+    closure();
+    let after_time  = SystemTime::now();
+    after_time.duration_since(before_time).unwrap()
 }

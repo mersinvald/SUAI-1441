@@ -84,15 +84,15 @@ impl Line {
 
 impl Primitive2D for Line {
     fn to_matrix(&self) -> Matrix {
-        Matrix::new(
+        Matrix::Dynamic(
             vec![[self.p1.x,      self.p1.y,      1.0, 0.0],
                  [self.p2.x,      self.p2.y,      1.0, 0.0]]
         )
     }
 
     fn from_matrix(&mut self, m: &Matrix) {
-        self.p1 = Point2D::new(m.matrix[0][0], m.matrix[0][1]);
-        self.p2 = Point2D::new(m.matrix[1][0], m.matrix[1][1]);
+        self.p1 = Point2D::new(m[0][0], m[0][1]);
+        self.p2 = Point2D::new(m[1][0], m[1][1]);
     }
 
     fn anchor_point(&self) -> Point2D {

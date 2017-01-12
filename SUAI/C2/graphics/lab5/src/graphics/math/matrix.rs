@@ -1,25 +1,47 @@
 #![macro_use]
-use std::ops::Mul;
+use std::ops::{Mul, Index, IndexMut};
 use std::clone::Clone;
 
 #[derive(Debug)]
-pub struct Matrix {
-    pub matrix: Vec<[f64; 4]>,
+pub enum Matrix {
+     Static([[f64; 4]; 4]),
+     Dynamic(Vec<[f64; 4]>),
 }
 
 impl Matrix {
-    pub fn new(rows: Vec<[f64; 4]>) -> Matrix {
-        Matrix {
-            matrix: rows
+    pub fn len(&self) -> usize {
+        match *self {
+            Matrix::Static(..) => 4,
+            Matrix::Dynamic(ref vec) => vec.len(),
+        }
+    }
+}
+
+impl Index<usize> for Matrix {
+    type Output = [f64; 4];
+    fn index(&self, idx: usize) -> &Self::Output {
+        match *self {
+            Matrix::Static(ref array) => &array[idx],
+            Matrix::Dynamic(ref vec)  => &vec[idx],
+        }
+    }
+}
+
+impl IndexMut<usize> for Matrix {
+    fn index_mut(&mut self, idx: usize) -> &mut Self::Output {
+        match *self {
+            Matrix::Static(ref mut array) => &mut array[idx],
+            Matrix::Dynamic(ref mut vec)  => &mut vec[idx],
         }
     }
 }
 
 impl Clone for Matrix {
     fn clone(&self) -> Matrix {
-        Matrix::new(
-            self.matrix.clone()
-        )
+        match *self {
+            Matrix::Static(array) => Matrix::Static(array),
+            Matrix::Dynamic(ref vec)  => Matrix::Dynamic(vec.clone()),
+        }
     }
 }
 
@@ -28,13 +50,13 @@ impl Mul for Matrix {
 
     fn mul(self, _rhs: Matrix) -> Matrix {
         use std::cmp;
-        let rows_cnt = cmp::max(_rhs.matrix.len(), self.matrix.len());
+
+        let rows_cnt = cmp::max(_rhs.len(), self.len());
         let mut new = Matrix::null_matrix(rows_cnt);
         for row in 0..rows_cnt {
             for col in 0..4 {
                 for inner in 0..4 {
-                    new.matrix[row][col] += self.matrix[row][inner] *
-                                           _rhs.matrix[inner][col];
+                    new[row][col] += self[row][inner] * _rhs[inner][col];
                 }
             }
         }
@@ -51,116 +73,120 @@ impl Matrix {
         for _ in 0..rows {
             vec.push([0.0; 4]);
         }
-        Matrix::new(vec)
+        Matrix::Dynamic(vec)
     }
 
     #[inline]
     pub fn identity_matrix() -> Matrix {
-        Matrix::new(
-            vec![[1.0, 0.0, 0.0, 0.0],
-                 [0.0, 1.0, 0.0, 0.0],
-                 [0.0, 0.0, 1.0, 0.0]]
+        Matrix::Static(
+            [[1.0, 0.0, 0.0, 0.0],
+             [0.0, 1.0, 0.0, 0.0],
+             [0.0, 0.0, 1.0, 0.0],
+             [0.0, 0.0, 0.0, 1.0]]
         )
     }
 
     #[inline]
     pub fn translation_matrix(dx: f64, dy: f64) -> Matrix {
-        Matrix::new(
-            vec![[1.0, 0.0, 0.0, 0.0],
-                 [0.0, 1.0, 0.0, 0.0],
-                 [dx,  dy,  1.0, 0.0]]
+        Matrix::Static(
+            [[1.0, 0.0, 0.0, 0.0],
+             [0.0, 1.0, 0.0, 0.0],
+             [dx,  dy,  1.0, 0.0],
+             [0.0, 0.0, 0.0, 1.0]]
         )
     }
 
     #[inline]
     pub fn scale_matrix(sx: f64, sy: f64) -> Matrix {
-        Matrix::new(
-            vec![[sx,  0.0, 0.0, 0.0],
-                 [0.0, sy,  0.0, 0.0],
-                 [0.0, 0.0, 1.0, 0.0]]
+        Matrix::Static(
+            [[sx,  0.0, 0.0, 0.0],
+             [0.0, sy,  0.0, 0.0],
+             [0.0, 0.0, 1.0, 0.0],
+             [0.0, 0.0, 0.0, 1.0]]
         )
     }
 
     #[inline]
     pub fn rotation_matrix(angle: f64) -> Matrix {
         let a = angle.to_radians();
-        Matrix::new(
-            vec![[ a.cos(), a.sin(), 0.0, 0.0],
-                 [-a.sin(), a.cos(), 0.0, 0.0],
-                 [0.0,      0.0,     1.0, 0.0]]
+        Matrix::Static(
+            [[ a.cos(), a.sin(), 0.0, 0.0],
+             [-a.sin(), a.cos(), 0.0, 0.0],
+             [0.0,      0.0,     1.0, 0.0],
+             [0.0,      0.0,     0.0, 1.0]]
         )
     }
 
     #[inline]
     pub fn identity_matrix_3D() -> Matrix {
-        Matrix::new(
-            vec![[1.0, 0.0, 0.0, 0.0],
-                 [0.0, 1.0, 0.0, 0.0],
-                 [0.0, 0.0, 1.0, 0.0],
-                 [0.0, 0.0, 0.0, 1.0]]
+        Matrix::Static(
+            [[1.0, 0.0, 0.0, 0.0],
+             [0.0, 1.0, 0.0, 0.0],
+             [0.0, 0.0, 1.0, 0.0],
+             [0.0, 0.0, 0.0, 1.0]]
         )
     }
 
     #[inline]
     pub fn translation_matrix_3D(dx: f64, dy: f64, dz: f64) -> Matrix {
-        Matrix::new(
-            vec![[1.0, 0.0, 0.0, 0.0],
-                 [0.0, 1.0, 0.0, 0.0],
-                 [0.0, 0.0, 1.0, 0.0],
-                 [dx,  dy,  dz,  1.0]]
+        Matrix::Static(
+            [[1.0, 0.0, 0.0, 0.0],
+             [0.0, 1.0, 0.0, 0.0],
+             [0.0, 0.0, 1.0, 0.0],
+             [dx,  dy,  dz,  1.0]]
         )
     }
 
     #[inline]
     pub fn scale_matrix_3D(sx: f64, sy: f64, sz: f64) -> Matrix {
-        Matrix::new(
-            vec![[sx,  0.0, 0.0, 0.0],
-                 [0.0, sy,  0.0, 0.0],
-                 [0.0, 0.0, sz , 0.0],
-                 [0.0, 0.0, 0.0, 1.0]]
+        Matrix::Static(
+            [[sx,  0.0, 0.0, 0.0],
+             [0.0, sy,  0.0, 0.0],
+             [0.0, 0.0, sz , 0.0],
+             [0.0, 0.0, 0.0, 1.0]]
         )
     }
 
     #[inline]
     pub fn rotation_matrix_x(angle: f64) -> Matrix {
         let a = angle.to_radians();
-        Matrix::new(
-            vec![[1.0, 0.0,     0.0,     0.0],
-                 [0.0, a.cos(), a.sin(), 0.0],
-                 [0.0,-a.sin(), a.cos(), 0.0],
-                 [0.0, 0.0,     0.0,     1.0]]
+        Matrix::Static(
+            [[1.0, 0.0,     0.0,     0.0],
+             [0.0, a.cos(), a.sin(), 0.0],
+             [0.0,-a.sin(), a.cos(), 0.0],
+             [0.0, 0.0,     0.0,     1.0]]
         )
     }
 
     #[inline]
     pub fn rotation_matrix_y(angle: f64) -> Matrix {
         let a = angle.to_radians();
-        Matrix::new(
-            vec![[a.cos(), 0.0,-a.sin(), 0.0],
-                 [0.0,     1.0, 0.0,     0.0],
-                 [a.sin(), 0.0, a.cos(), 0.0],
-                 [0.0, 0.0,     0.0,     1.0]]
+        Matrix::Static(
+            [[a.cos(), 0.0,-a.sin(), 0.0],
+             [0.0,     1.0, 0.0,     0.0],
+             [a.sin(), 0.0, a.cos(), 0.0],
+             [0.0, 0.0,     0.0,     1.0]]
         )
     }
 
     #[inline]
     pub fn rotation_matrix_z(angle: f64) -> Matrix {
         let a = angle.to_radians();
-        Matrix::new(
-            vec![[a.cos(),   a.sin(), 0.0, 0.0],
-                 [-a.sin(),  a.cos(), 0.0, 0.0],
-                 [0.0,       0.0,     1.0, 0.0],
-                 [0.0,       0.0,     0.0, 1.0]]
+        Matrix::Static(
+            [[a.cos(),   a.sin(), 0.0, 0.0],
+             [-a.sin(),  a.cos(), 0.0, 0.0],
+             [0.0,       0.0,     1.0, 0.0],
+             [0.0,       0.0,     0.0, 1.0]]
         )
     }
 
     #[inline]
     pub fn orthographic_projection_matrix() -> Matrix {
-        Matrix::new(
-            vec![[1.0, 0.0, 0.0, 0.0],
-                 [0.0, 1.0, 0.0, 0.0],
-                 [0.0, 0.0, 0.0, 0.0],
-                 [0.0, 0.0, 0.0, 1.0]]
+        Matrix::Static(
+            [[1.0, 0.0, 0.0, 0.0],
+             [0.0, 1.0, 0.0, 0.0],
+             [0.0, 0.0, 0.0, 0.0],
+             [0.0, 0.0, 0.0, 1.0]]
         )
     }
 
@@ -170,11 +196,11 @@ impl Matrix {
         let fDepth = 1.0 / fDepth;
 
         let r1 = 1.0/(0.5*fov).tan();
-        Matrix::new(
-            vec![[r1, 0.0,  0.0,          0.0],
-                 [0.0,       r1/aspect,   0.0,          0.0],
-                 [0.0,       0.0,  far * fDepth, (-far*near) * fDepth],
-                 [0.0,       0.0,  1.0,          0.0]]
+        Matrix::Static(
+            [[r1, 0.0,  0.0,          0.0],
+             [0.0,       r1/aspect,   0.0,          0.0],
+             [0.0,       0.0,  far * fDepth, (-far*near) * fDepth],
+             [0.0,       0.0,  1.0,          0.0]]
         )
     }
 

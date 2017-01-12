@@ -37,8 +37,6 @@ impl Pyramide {
             );
         }
 
-        println!("{:?}", vertices);
-
         Pyramide {
             points: vertices,
             anchor: center.clone(),
@@ -50,7 +48,7 @@ impl Pyramide {
 impl Primitive3D for Pyramide {
     fn to_matrix(&self) -> Matrix {
         let p = &self.points;
-        Matrix::new(
+        Matrix::Dynamic(
             vec![[p[0].x, p[0].y, p[0].z, 1.0],
                  [p[1].x, p[1].y, p[1].z, 1.0],
                  [p[2].x, p[2].y, p[2].z, 1.0],
@@ -61,12 +59,10 @@ impl Primitive3D for Pyramide {
 
     // TODO: From Vec to Point
     fn from_matrix(&mut self, m: &Matrix) {
-        println!("{:?}", self);
-        println!("{:?}", m);
         for i in 0..5 {
-            self.points[i].x = m.matrix[i][0];
-            self.points[i].y = m.matrix[i][1];
-            self.points[i].z = m.matrix[i][2];
+            self.points[i].x = m[i][0];
+            self.points[i].y = m[i][1];
+            self.points[i].z = m[i][2];
         }
     }
 
@@ -80,12 +76,12 @@ impl Primitive3D for Pyramide {
 
     fn draw(&self, renderer: &Renderer) {
         let m2d = self.to_matrix() * Matrix::camera_matrix(2.0, 1280.0/720.0, 0.0, 100.0);
-        let top_2d = Point2D::from(&m2d.matrix[0]);
+        let top_2d = Point2D::from(&m2d[0]);
 
         for i in 0..5 {
             let next_index = if i == 4 { 1 } else { i + 1 };
-            let p1_2d = Point2D::from(&m2d.matrix[i]);
-            let p2_2d = Point2D::from(&m2d.matrix[next_index]);
+            let p1_2d = Point2D::from(&m2d[i]);
+            let p2_2d = Point2D::from(&m2d[next_index]);
 
             let t_line = line::Line::new(&top_2d, &p1_2d, self.colors[i % self.colors.len()]);
             let p_line = line::Line::new(&p1_2d, &p2_2d,  self.colors[next_index % self.colors.len()]);
@@ -96,20 +92,20 @@ impl Primitive3D for Pyramide {
     }
 
     fn fill(&self, renderer: &Renderer) {
-        let center_z = self.points.iter().fold(0.0, |sum, item| sum + item.z)
+        let center_z = self.points.iter().map(|item| item.z).sum::<f64>()
                      / self.points.len() as f64;
 
         let m2d = self.to_matrix() * Matrix::camera_matrix(2.0, 1280.0/720.0, 0.0, 100.0);
 
         let top = &self.points[0];
-        let top_2d = Point2D::from(&m2d.matrix[0]);
+        let top_2d = Point2D::from(&m2d[0]);
 
         for i in 1..5 {
             let next_index = if i == 4 { 1 } else { i + 1 };
             let p1 = &self.points[i];
             let p2 = &self.points[next_index];
-            let p1_2d = Point2D::from(&m2d.matrix[i]);
-            let p2_2d = Point2D::from(&m2d.matrix[next_index]);
+            let p1_2d = Point2D::from(&m2d[i]);
+            let p2_2d = Point2D::from(&m2d[next_index]);
 
             let avg = (top.z + p1.z + p2.z) / 3.0;
             if avg > center_z {
@@ -132,7 +128,7 @@ impl Primitive3D for Pyramide {
         let mut avg = 0.0;
         for i in 1..5 {
             let p = &self.points[i];
-            let p_2d = Point2D::from(&m2d.matrix[i]);
+            let p_2d = Point2D::from(&m2d[i]);
             avg += p.z;
             vx.push(p_2d.x as i16);
             vy.push(p_2d.y as i16);
