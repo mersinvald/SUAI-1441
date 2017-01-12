@@ -1,6 +1,30 @@
 #![macro_use]
-use std::ops::{Mul, Index, IndexMut};
+use std::ops::{Mul, MulAssign, Index, IndexMut, Deref, DerefMut};
 use std::clone::Clone;
+use std::mem;
+
+#[derive(Debug)]
+pub struct MatrixPair(pub Matrix, pub Matrix);
+
+impl Deref for MatrixPair {
+    type Target = Matrix;
+    fn deref(&self) -> &Matrix {
+        &self.0
+    }
+}
+
+impl DerefMut for MatrixPair {
+    fn deref_mut(&mut self) -> &mut Matrix {
+        &mut self.0
+    }
+}
+
+impl MatrixPair {
+    pub fn swap(&mut self) {
+        mem::swap(&mut self.0, &mut self.1);
+    }
+}
+
 
 #[derive(Debug)]
 pub enum Matrix {
@@ -62,6 +86,29 @@ impl Mul for Matrix {
         }
 
         return new;
+    }
+}
+
+impl MulAssign<Matrix> for MatrixPair {
+    fn mul_assign(&mut self, _rhs: Matrix) {
+        use std::cmp;
+        let rows_cnt = cmp::max(self.0.len(), _rhs.len());
+
+        for row in 0..rows_cnt {
+            for col in 0..4 {
+                self.1[row][col] = 0.0;
+            }
+        }
+
+        for row in 0..rows_cnt {
+            for col in 0..4 {
+                for inner in 0..4 {
+                    self.1[row][col] += self.0[row][inner] * _rhs[inner][col];
+                }
+            }
+        }
+
+        self.swap()
     }
 }
 

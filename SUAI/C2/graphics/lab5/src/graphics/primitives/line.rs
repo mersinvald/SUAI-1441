@@ -83,18 +83,6 @@ impl Line {
 }
 
 impl Primitive2D for Line {
-    fn to_matrix(&self) -> Matrix {
-        Matrix::Dynamic(
-            vec![[self.p1.x,      self.p1.y,      1.0, 0.0],
-                 [self.p2.x,      self.p2.y,      1.0, 0.0]]
-        )
-    }
-
-    fn from_matrix(&mut self, m: &Matrix) {
-        self.p1 = Point2D::new(m[0][0], m[0][1]);
-        self.p2 = Point2D::new(m[1][0], m[1][1]);
-    }
-
     fn anchor_point(&self) -> Point2D {
         self.anchor.clone()
     }
@@ -104,11 +92,7 @@ impl Primitive2D for Line {
     }
 
     #[inline]
-    fn draw(&self, renderer: &Renderer) {
-        self.draw_bresenham_line(renderer);
-    }
-
-    fn fill(&self, renderer: &Renderer) {
+    fn draw(&mut self, renderer: &Renderer) {
         self.draw_bresenham_line(renderer);
     }
 }

@@ -68,9 +68,8 @@ fn main() {
     loop {
         // If exit event passed, break the loop
         for event in events.poll_iter() {
-            match event {
-                Event::Quit {..} => break 'main,
-                _ => ()
+            if let Event::Quit {..} = event {
+                break 'main;
             }
         }
 

@@ -7,6 +7,7 @@ use graphics::math::matrix::*;
 
 #[derive(Debug)]
 pub struct Pyramide {
+    matrix: MatrixPair,
     pub points: Vec<Point3D>,
     anchor: Point3D,
     colors:  Vec<Color>
@@ -37,7 +38,11 @@ impl Pyramide {
             );
         }
 
+        // Construct 
+
         Pyramide {
+            matrix: MatrixPair(Matrix::null_matrix(vertices.len()),
+                               Matrix::null_matrix(vertices.len())),  
             points: vertices,
             anchor: center.clone(),
             colors: colors
@@ -46,23 +51,22 @@ impl Pyramide {
 }
 
 impl Primitive3D for Pyramide {
-    fn to_matrix(&self) -> Matrix {
+    fn inner_matrix(&mut self) -> &mut MatrixPair {
         let p = &self.points;
-        Matrix::Dynamic(
-            vec![[p[0].x, p[0].y, p[0].z, 1.0],
-                 [p[1].x, p[1].y, p[1].z, 1.0],
-                 [p[2].x, p[2].y, p[2].z, 1.0],
-                 [p[3].x, p[3].y, p[3].z, 1.0],
-                 [p[4].x, p[4].y, p[4].z, 1.0]]
-        )
+        for i in 0..5 {
+            self.matrix[i][0] = p[i].x;
+            self.matrix[i][1] = p[i].y;
+            self.matrix[i][2] = p[i].z;
+            self.matrix[i][3] = 1.0;
+        }
+        &mut self.matrix
     }
 
-    // TODO: From Vec to Point
-    fn from_matrix(&mut self, m: &Matrix) {
+    fn load_matrix(&mut self) {
         for i in 0..5 {
-            self.points[i].x = m[i][0];
-            self.points[i].y = m[i][1];
-            self.points[i].z = m[i][2];
+            self.points[i].x = self.matrix[i][0];
+            self.points[i].y = self.matrix[i][1];
+            self.points[i].z = self.matrix[i][2];
         }
     }
 
@@ -74,8 +78,9 @@ impl Primitive3D for Pyramide {
         self.anchor = anchor.clone();
     }
 
-    fn draw(&self, renderer: &Renderer) {
-        let m2d = self.to_matrix() * Matrix::camera_matrix(2.0, 1280.0/720.0, 0.0, 100.0);
+    fn draw(&mut self, renderer: &Renderer) {
+        let matrix = self.inner_matrix().clone();
+        let m2d = matrix * Matrix::camera_matrix(2.0, 1280.0/720.0, 0.0, 100.0);
         let top_2d = Point2D::from(&m2d[0]);
 
         for i in 0..5 {
@@ -83,19 +88,20 @@ impl Primitive3D for Pyramide {
             let p1_2d = Point2D::from(&m2d[i]);
             let p2_2d = Point2D::from(&m2d[next_index]);
 
-            let t_line = line::Line::new(&top_2d, &p1_2d, self.colors[i % self.colors.len()]);
-            let p_line = line::Line::new(&p1_2d, &p2_2d,  self.colors[next_index % self.colors.len()]);
+            let mut t_line = line::Line::new(&top_2d, &p1_2d, self.colors[i % self.colors.len()]);
+            let mut p_line = line::Line::new(&p1_2d, &p2_2d,  self.colors[next_index % self.colors.len()]);
 
             t_line.draw(renderer);
             p_line.draw(renderer);
         }
     }
 
-    fn fill(&self, renderer: &Renderer) {
+    fn fill(&mut self, renderer: &Renderer) {
         let center_z = self.points.iter().map(|item| item.z).sum::<f64>()
                      / self.points.len() as f64;
 
-        let m2d = self.to_matrix() * Matrix::camera_matrix(2.0, 1280.0/720.0, 0.0, 100.0);
+        let matrix = self.inner_matrix().clone();
+        let m2d = matrix * Matrix::camera_matrix(2.0, 1280.0/720.0, 0.0, 100.0);
 
         let top = &self.points[0];
         let top_2d = Point2D::from(&m2d[0]);

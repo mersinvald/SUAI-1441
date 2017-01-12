@@ -4,7 +4,7 @@ use std;
 pub mod line;
 pub mod pyramide;
 
-use graphics::math::matrix::Matrix;
+use graphics::math::matrix::*;
 
 #[derive(Debug)]
 pub struct Point2D {
@@ -70,24 +70,28 @@ impl std::clone::Clone for Point3D {
 
 pub trait Primitive2D {
     /* Getting and setting via matrices, for affine transform */
-    fn to_matrix(&self) -> Matrix;
-    fn from_matrix(&mut self, m: &Matrix);
+    fn inner_matrix(&mut self) -> &mut MatrixPair           { unimplemented!() }
+    fn load_matrix(&mut self)                               { unimplemented!() }
 
     /* Acnhor point is the local coordinates start point */
-    fn anchor_point(&self) -> Point2D;
-    fn set_anchor_point(&mut self, anchor: &Point2D);
+    fn anchor_point(&self) -> Point2D                       { unimplemented!() }
+    fn set_anchor_point(&mut self, anchor: &Point2D)        { unimplemented!() }
+
+    /* Draw the object on screen */
+    fn draw(&mut self, renderer: &Renderer)                 { unimplemented!() }
+    fn fill(&mut self, renderer: &Renderer)                 { unimplemented!() }
 
     /* Affine Transformations */
     fn translate(&mut self, dx: f64, dy: f64) {
-        let obj = self.to_matrix();
         let mut anchor = self.anchor_point();
+        {
+            let mut matrix = self.inner_matrix();
 
-        self.from_matrix(
-          &(obj *
-            Matrix::translation_matrix(-anchor.x, -anchor.y) *
-            Matrix::translation_matrix(dx, dy) *
-            Matrix::translation_matrix(anchor.x, anchor.y))
-        );
+            *matrix *= Matrix::translation_matrix(-anchor.x, -anchor.y);
+            *matrix *= Matrix::translation_matrix(dx, dy);
+            *matrix *= Matrix::translation_matrix(anchor.x, anchor.y);
+        }
+        self.load_matrix();
 
         // Moving anchor point by dx and dy
         anchor.x += dx;
@@ -97,56 +101,55 @@ pub trait Primitive2D {
     }
 
     fn scale(&mut self, sx: f64, sy: f64) {
-        let obj = self.to_matrix();
         let anchor = self.anchor_point();
+        {
+            let matrix = self.inner_matrix();
 
-        self.from_matrix(
-          &(obj *
-            Matrix::translation_matrix(-anchor.x, -anchor.y) *
-            Matrix::scale_matrix(sx, sy) *
-            Matrix::translation_matrix(anchor.x, anchor.y))
-        );
+            *matrix *= Matrix::translation_matrix(-anchor.x, -anchor.y);
+            *matrix *= Matrix::scale_matrix(sx, sy);
+            *matrix *= Matrix::translation_matrix(anchor.x, anchor.y);
+        }
+        self.load_matrix();
     }
 
     fn rotate(&mut self, angle: f64) {
-        let obj = self.to_matrix();
         let anchor = self.anchor_point();
+        {
+            let matrix = self.inner_matrix();
 
-        self.from_matrix(
-          &(obj *
-            Matrix::translation_matrix(-anchor.x, -anchor.y) *
-            Matrix::rotation_matrix(angle) *
-            Matrix::translation_matrix(anchor.x, anchor.y))
-        );
+            *matrix *= Matrix::translation_matrix(-anchor.x, -anchor.y);
+            *matrix *= Matrix::rotation_matrix(angle);
+            *matrix *= Matrix::translation_matrix(anchor.x, anchor.y);
+        }
+        self.load_matrix();
     }
-
-    /* Draw the object on screen */
-    fn draw(&self, renderer: &Renderer);
-
-    fn fill(&self, renderer: &Renderer);
 }
 
 
 pub trait Primitive3D {
     /* Getting and setting via matrices, for affine transform */
-    fn to_matrix(&self) -> Matrix;
-    fn from_matrix(&mut self, m: &Matrix);
+    fn inner_matrix(&mut self) -> &mut MatrixPair           { unimplemented!() }
+    fn load_matrix(&mut self)                               { unimplemented!() }
 
     /* Acnhor point is the local coordinates start point */
-    fn anchor_point(&self) -> Point3D;
-    fn set_anchor_point(&mut self, anchor: &Point3D);
+    fn anchor_point(&self) -> Point3D                       { unimplemented!() }
+    fn set_anchor_point(&mut self, anchor: &Point3D)        { unimplemented!() }
+
+    /* Draw the object on screen */
+    fn draw(&mut self, renderer: &Renderer)                 { unimplemented!() }
+    fn fill(&mut self, renderer: &Renderer)                 { unimplemented!() }
 
     /* Affine Transformations */
     fn translate(&mut self, dx: f64, dy: f64, dz: f64) {
-        let obj = self.to_matrix();
         let mut anchor = self.anchor_point();
+        {
+            let mut matrix = self.inner_matrix();
 
-        self.from_matrix(
-          &(obj *
-            Matrix::translation_matrix_3D(-anchor.x, -anchor.y, -anchor.z) *
-            Matrix::translation_matrix_3D(dx, dy, dz) *
-            Matrix::translation_matrix_3D(anchor.x, anchor.y, anchor.z))
-        );
+            *matrix *= Matrix::translation_matrix_3D(-anchor.x, -anchor.y, -anchor.z);
+            *matrix *= Matrix::translation_matrix_3D(dx, dy, dz);
+            *matrix *= Matrix::translation_matrix_3D(anchor.x, anchor.y, anchor.z);
+        }
+        self.load_matrix();
 
         // Moving anchor point by dx and dy
         anchor.x += dx;
@@ -156,34 +159,29 @@ pub trait Primitive3D {
         self.set_anchor_point(&anchor);
     }
 
-    fn scale(&mut self, sx: f64, sy: f64, sz: f64) {
-        let obj = self.to_matrix();
+    fn scale(&mut self, sx: f64, sy: f64, sz: f64) {    
         let anchor = self.anchor_point();
+        {
+            let mut matrix = self.inner_matrix();
 
-        self.from_matrix(
-          &(obj *
-            Matrix::translation_matrix_3D(-anchor.x, -anchor.y, -anchor.z) *
-            Matrix::scale_matrix_3D(sx, sy, sz) *
-            Matrix::translation_matrix_3D(anchor.x, anchor.y, anchor.z))
-        );
+            *matrix *= Matrix::translation_matrix_3D(-anchor.x, -anchor.y, -anchor.z);
+            *matrix *= Matrix::scale_matrix_3D(sx, sy, sz);
+            *matrix *= Matrix::translation_matrix_3D(anchor.x, anchor.y, anchor.z);
+        }
+        self.load_matrix();
     }
 
     fn rotate(&mut self, ax: f64, ay: f64, az: f64) {
-        let obj = self.to_matrix();
         let anchor = self.anchor_point();
+        {
+            let mut matrix = self.inner_matrix();
 
-        self.from_matrix(
-          &(obj *
-            Matrix::translation_matrix_3D(-anchor.x, -anchor.y, -anchor.z) *
-            Matrix::rotation_matrix_x(ax) *
-            Matrix::rotation_matrix_y(ay) *
-            Matrix::rotation_matrix_z(az) *
-            Matrix::translation_matrix_3D(anchor.x, anchor.y, anchor.z))
-        );
+            *matrix *= Matrix::translation_matrix_3D(-anchor.x, -anchor.y, -anchor.z);
+            *matrix *= Matrix::rotation_matrix_x(ax);
+            *matrix *= Matrix::rotation_matrix_y(ay);
+            *matrix *= Matrix::rotation_matrix_z(az);
+            *matrix *= Matrix::translation_matrix_3D(anchor.x, anchor.y, anchor.z);
+        }
+        self.load_matrix();
     }
-
-    /* Draw the object on screen */
-    fn draw(&self, renderer: &Renderer);
-
-    fn fill(&self, renderer: &Renderer);
 }
