@@ -1,0 +1,6 @@
+[package]
+name = "lwz-dict"
+version = "0.1.0"
+authors = ["Mike <lubinetsm@yandex.ru>"]
+
+[dependencies]

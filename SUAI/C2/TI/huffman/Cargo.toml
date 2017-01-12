@@ -1,0 +1,7 @@
+[package]
+name = "hamming"
+version = "0.1.0"
+authors = ["Mike <lubinetsm@yandex.ru>"]
+
+[dependencies]
+huffman = { git = "https://github.com/xclayl/rust-huffman" }
