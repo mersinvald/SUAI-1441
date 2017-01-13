@@ -1,5 +1,6 @@
 extern crate sdl2;
 extern crate sdl2_gfx;
+extern crate cgmath;
 
 use sdl2::pixels::Color;
 use sdl2::event::Event;
@@ -43,7 +44,7 @@ fn main() {
     let h0 = HEIGHT as f64 / 2.0;
 
     let mut pyramid = pyramide::Pyramide::new(
-        &Point3D::new(
+        Point3::new(
             w0,
             h0,
             10.0
@@ -111,17 +112,17 @@ fn main() {
 
         transform_times[frame % 30] = stopwatch(|| {
             // Do affine transformations and draw
-            pyramid.rotate(rx, ry, rz);
-            pyramid.scale(scale, scale, scale);
-            pyramid.translate(dx, dy, dz);
+            pyramid.rotate(Vector3::new(rx, ry, rz));
+            pyramid.scale(Vector3::new(scale, scale, scale));
+            pyramid.translate(Vector3::new(dx, dy, dz));
 
             // Draw
             pyramid.draw(&renderer);
-        }).subsec_nanos();
 
-        if fill {
-            pyramid.fill(&renderer);
-        }
+            if fill {
+                pyramid.fill(&renderer);
+            }
+        }).subsec_nanos();
 
         // Present render buffer
         renderer.present();

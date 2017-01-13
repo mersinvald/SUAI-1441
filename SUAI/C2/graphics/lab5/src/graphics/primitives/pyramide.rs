@@ -1,152 +1,77 @@
 use sdl2::pixels::Color;
 use sdl2::render::Renderer;
-use sdl2_gfx::primitives::DrawRenderer;
 
 use graphics::primitives::*;
-use graphics::math::matrix::*;
+use graphics::primitives::triangle::*;
 
 #[derive(Debug)]
 pub struct Pyramide {
-    matrix: MatrixPair,
-    pub points: Vec<Point3D>,
-    anchor: Point3D,
+    triangles: [Triangle; 6],
+    anchor:  Point3,
     colors:  Vec<Color>
 }
 
 impl Pyramide {
-    pub fn new(center: &Point3D, w: f64, h: f64, colors: Vec<Color>) -> Pyramide {
+    pub fn new(center: Point3, w: f64, h: f64, colors: Vec<Color>) -> Pyramide {
         use std::f64::*;
 
-        let mut vertices = Vec::with_capacity(5);
-
-        // Top vertex
-        vertices.push(
-            Point3D::new(center.x, center.y - h / 2.0, center.z)
-        );
+        let top = Point3::new(center.x, center.y - h / 2.0, center.z);
+        let mut bottom = [Point3::new(0.0, 0.0, 0.0); 4];  
 
         // Bottom quad
         let by = center.y + h / 2.0;
         let radius = w / 2.0;
         for i in 0..4 {
-            let i = i as f64;
-            vertices.push(
-                Point3D::new(
-                    center.x + radius * (2.0 * consts::PI * i / 4.0).cos(),
-                    by,
-                    center.z + radius * (2.0 * consts::PI * i / 4.0).sin(),
-                )
+            let fi = i as f64;
+            bottom[i] = Point3::new(
+                center.x + radius * (2.0 * consts::PI * fi / 4.0).cos(),
+                by,
+                center.z + radius * (2.0 * consts::PI * fi / 4.0).sin(),
             );
         }
+        
+        let mut triangle_ctr = 0;
+        let mut next_color = || {
+            triangle_ctr += 1;
+            colors[triangle_ctr % colors.len()]
+        };
 
-        // Construct 
+        // Construct triangles 
+        let triangles = [
+            Triangle::new([top, bottom[0], bottom[1]],       center, next_color()),
+            Triangle::new([top, bottom[1], bottom[2]],       center, next_color()),
+            Triangle::new([top, bottom[2], bottom[3]],       center, next_color()),
+            Triangle::new([top, bottom[3], bottom[0]],       center, next_color()),
+            Triangle::new([bottom[0], bottom[2], bottom[1]], center, next_color()),
+            Triangle::new([bottom[0], bottom[2], bottom[3]], center, next_color())
+        ];
 
         Pyramide {
-            matrix: MatrixPair(Matrix::null_matrix(vertices.len()),
-                               Matrix::null_matrix(vertices.len())),  
-            points: vertices,
-            anchor: center.clone(),
-            colors: colors
+            triangles: triangles,
+            anchor: center,
+            colors: colors.clone()
         }
     }
 }
 
 impl Primitive3D for Pyramide {
-    fn inner_matrix(&mut self) -> &mut MatrixPair {
-        let p = &self.points;
-        for i in 0..5 {
-            self.matrix[i][0] = p[i].x;
-            self.matrix[i][1] = p[i].y;
-            self.matrix[i][2] = p[i].z;
-            self.matrix[i][3] = 1.0;
-        }
-        &mut self.matrix
-    }
+    /* Getting figure triangles */
+    fn triangles(&mut self) -> &mut [Triangle]             { &mut self.triangles[..] }
 
-    fn load_matrix(&mut self) {
-        for i in 0..5 {
-            self.points[i].x = self.matrix[i][0];
-            self.points[i].y = self.matrix[i][1];
-            self.points[i].z = self.matrix[i][2];
-        }
-    }
-
-    fn anchor_point(&self) -> Point3D {
-        return self.anchor.clone();
-    }
-
-    fn set_anchor_point(&mut self, anchor: &Point3D) {
-        self.anchor = anchor.clone();
-    }
-
-    fn draw(&mut self, renderer: &Renderer) {
-        let matrix = self.inner_matrix().clone();
-        let m2d = matrix * Matrix::camera_matrix(90.0, 1280.0/720.0, 0.1, 100.0);
-        let top_2d = Point2D::from(&m2d[0]);
-
-        for i in 0..5 {
-            let next_index = if i == 4 { 1 } else { i + 1 };
-            let p1_2d = Point2D::from(&m2d[i]);
-            let p2_2d = Point2D::from(&m2d[next_index]);
-
-            let mut t_line = line::Line::new(&top_2d, &p1_2d, self.colors[i % self.colors.len()]);
-            let mut p_line = line::Line::new(&p1_2d, &p2_2d,  self.colors[next_index % self.colors.len()]);
-
-            t_line.draw(renderer);
-            p_line.draw(renderer);
-        }
-    }
+    /* Acnhor point is the local coordinates start point */
+    fn anchor_point(&self) -> Point3                       { self.anchor }
+    fn set_anchor_point(&mut self, anchor:  Point3)        { self.anchor = anchor; }
 
     fn fill(&mut self, renderer: &Renderer) {
-        let center_z = self.points.iter().map(|item| item.z).sum::<f64>()
-                     / self.points.len() as f64;
+        use std::cmp::Ordering;
 
-        let matrix = self.inner_matrix().clone();
-        let m2d = matrix * Matrix::camera_matrix(90.0, 1280.0/720.0, 0.1, 100.0);
-        
-        let top = &self.points[0];
-        let top_2d = Point2D::from(&m2d[0]);
+        // Rearranging by Z axis
+        self.triangles[..].sort_by(|t1, t2| {
+            t1.midpoint().z.partial_cmp(&t2.midpoint().z).unwrap_or(Ordering::Equal)
+        });
 
-        for i in 1..5 {
-            let next_index = if i == 4 { 1 } else { i + 1 };
-            let p1 = &self.points[i];
-            let p2 = &self.points[next_index];
-            let p1_2d = Point2D::from(&m2d[i]);
-            let p2_2d = Point2D::from(&m2d[next_index]);
-
-            let avg = (top.z + p1.z + p2.z) / 3.0;
-            if avg > center_z {
-                renderer.filled_trigon(
-                    top_2d.x as i16,
-                    top_2d.y as i16,
-                    p1_2d.x as i16,
-                    p1_2d.y as i16,
-                    p2_2d.x as i16,
-                    p2_2d.y as i16,
-                    self.colors[i % self.colors.len()]
-                ).unwrap();
-            }
-        }
-
-        // Drawing Bottom
-        let mut vx = Vec::with_capacity(4);
-        let mut vy = Vec::with_capacity(4);
-
-        let mut avg = 0.0;
-        for i in 1..5 {
-            let p = &self.points[i];
-            let p_2d = Point2D::from(&m2d[i]);
-            avg += p.z;
-            vx.push(p_2d.x as i16);
-            vy.push(p_2d.y as i16);
-        }
-        avg /= 4.0;
-
-        if avg > center_z {
-            renderer.filled_polygon(
-                vx.as_slice(),
-                vy.as_slice(),
-                self.colors[5 % self.colors.len()]
-            ).unwrap();
+        for tri in &mut self.triangles {
+            tri.fill(renderer);
         }
     }
 }
